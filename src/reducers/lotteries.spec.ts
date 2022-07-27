@@ -1,5 +1,5 @@
 import mockFetch from "cross-fetch";
-import reducer, { fetchContests, fetchLotteries } from "./lotteries";
+import reducer, { fetchContestsByLotteryId, fetchLotteries } from "./lotteries";
 import initialState from "./initialState";
 
 jest.mock("cross-fetch");
@@ -96,36 +96,36 @@ describe("Actions::Lotteries", () => {
     );
     const expected = expect.arrayContaining([
       expect.objectContaining({
-        type: fetchContests.pending.type,
+        type: fetchContestsByLotteryId.pending.type,
         meta: expect.objectContaining({ arg: lotteryA.id }),
       }),
       expect.objectContaining({
-        type: fetchContests.fulfilled.type,
+        type: fetchContestsByLotteryId.fulfilled.type,
         meta: expect.objectContaining({ arg: lotteryA.id }),
         payload: [contestA],
       }),
     ]);
 
-    await fetchContests(lotteryA.id)(dispatch, () => {}, {});
+    await fetchContestsByLotteryId(lotteryA.id)(dispatch, () => {}, {});
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
 
-  it("should fail to fetch lotteries contests", async () => {
+  it("should fail to fetch lottery's contests", async () => {
     mockedFetch.mockReturnValueOnce(Promise.reject(new Error("Network Error")));
     const expected = expect.arrayContaining([
       expect.objectContaining({
-        type: fetchContests.pending.type,
+        type: fetchContestsByLotteryId.pending.type,
         meta: expect.objectContaining({ arg: lotteryA.id }),
       }),
       expect.objectContaining({
-        type: fetchContests.rejected.type,
+        type: fetchContestsByLotteryId.rejected.type,
         meta: expect.objectContaining({ arg: lotteryA.id }),
         error: expect.objectContaining({ message: "Network Error" }),
       }),
     ]);
 
-    await fetchContests(lotteryA.id)(dispatch, () => {}, {});
+    await fetchContestsByLotteryId(lotteryA.id)(dispatch, () => {}, {});
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });

@@ -17,8 +17,8 @@ export const fetchLotteries = createAsyncThunk(
   }
 );
 
-export const fetchContests = createAsyncThunk(
-  "lotteries/fetchContests",
+export const fetchContestsByLotteryId = createAsyncThunk(
+  "lotteries/fetchContestsByLotteryId",
   async (lotteryId: number) => {
     const response = await fetch(`${apis.brainn_lottery}/loterias-concursos`);
     const data: LotteryContests[] = await response.json();
