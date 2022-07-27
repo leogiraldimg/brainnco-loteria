@@ -1,5 +1,5 @@
 import mockFetch from "cross-fetch";
-import reducer, { fetchLotteries } from "./lotteries";
+import reducer, { fetchContests, fetchLotteries } from "./lotteries";
 import initialState from "./initialState";
 
 jest.mock("cross-fetch");
@@ -25,6 +25,14 @@ describe("Actions::Lotteries", () => {
   const lotteryA = {
     id: 0,
     nome: "LoteriaA",
+  };
+  const contestA = {
+    loteriaId: 0,
+    concursoId: "0001",
+  };
+  const contestB = {
+    loteriaId: 1,
+    concursoId: "0002",
   };
 
   afterAll(() => {
@@ -73,6 +81,51 @@ describe("Actions::Lotteries", () => {
     ]);
 
     await fetchLotteries()(dispatch, () => {}, {});
+
+    expect(dispatch.mock.calls.flat()).toEqual(expected);
+  });
+
+  it("should fetch a lottery's contests", async () => {
+    mockedFetch.mockReturnValueOnce(
+      Promise.resolve({
+        status: 200,
+        json() {
+          return Promise.resolve([contestA, contestB]);
+        },
+      })
+    );
+    const expected = expect.arrayContaining([
+      expect.objectContaining({
+        type: fetchContests.pending.type,
+        meta: expect.objectContaining({ arg: lotteryA.id }),
+      }),
+      expect.objectContaining({
+        type: fetchContests.fulfilled.type,
+        meta: expect.objectContaining({ arg: lotteryA.id }),
+        payload: [contestA],
+      }),
+    ]);
+
+    await fetchContests(lotteryA.id)(dispatch, () => {}, {});
+
+    expect(dispatch.mock.calls.flat()).toEqual(expected);
+  });
+
+  it("should fail to fetch lotteries contests", async () => {
+    mockedFetch.mockReturnValueOnce(Promise.reject(new Error("Network Error")));
+    const expected = expect.arrayContaining([
+      expect.objectContaining({
+        type: fetchContests.pending.type,
+        meta: expect.objectContaining({ arg: lotteryA.id }),
+      }),
+      expect.objectContaining({
+        type: fetchContests.rejected.type,
+        meta: expect.objectContaining({ arg: lotteryA.id }),
+        error: expect.objectContaining({ message: "Network Error" }),
+      }),
+    ]);
+
+    await fetchContests(lotteryA.id)(dispatch, () => {}, {});
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
