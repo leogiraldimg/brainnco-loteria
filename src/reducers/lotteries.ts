@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import initialState from "./initialState";
-import { Lottery } from "../types/Lottery";
+import { Lottery, LotteryContests } from "../types/Lottery";
 import fetch from "cross-fetch";
 import apis from "../constants/apis";
 
@@ -14,6 +14,18 @@ export const fetchLotteries = createAsyncThunk(
     const response = await fetch(`${apis.brainn_lottery}/loterias`);
     const data: { data: Lottery[] } = await response.json();
     return data;
+  }
+);
+
+export const fetchContests = createAsyncThunk(
+  "lotteries/fetchContests",
+  async (lotteryId: number) => {
+    const response = await fetch(`${apis.brainn_lottery}/loterias-concursos`);
+    const data: LotteryContests[] = await response.json();
+    const filteredData = data.filter((v) => {
+      return v.loteriaId === lotteryId;
+    });
+    return filteredData;
   }
 );
 
