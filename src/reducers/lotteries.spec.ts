@@ -28,6 +28,7 @@ describe("Actions::Lotteries", () => {
   };
 
   afterAll(() => {
+    dispatch.mockClear();
     mockedFetch.mockClear();
   });
 
@@ -49,6 +50,25 @@ describe("Actions::Lotteries", () => {
         type: fetchLotteries.fulfilled.type,
         meta: expect.objectContaining({ arg: undefined }),
         payload: [lotteryA],
+      }),
+    ]);
+
+    await fetchLotteries()(dispatch, () => {}, {});
+
+    expect(dispatch.mock.calls.flat()).toEqual(expected);
+  });
+
+  it("should fail to fetch lotteries", async () => {
+    mockedFetch.mockReturnValueOnce(Promise.reject(new Error("Network Error")));
+    const expected = expect.arrayContaining([
+      expect.objectContaining({
+        type: fetchLotteries.pending.type,
+        meta: expect.objectContaining({ arg: undefined }),
+      }),
+      expect.objectContaining({
+        type: fetchLotteries.rejected.type,
+        meta: expect.objectContaining({ arg: undefined }),
+        error: expect.objectContaining({ message: "Network Error" }),
       }),
     ]);
 
