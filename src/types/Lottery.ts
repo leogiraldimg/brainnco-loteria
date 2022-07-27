@@ -2,7 +2,7 @@ import { Contest } from "./Contest";
 
 export interface Lottery {
   id: number;
-  name: string;
+  nome: string;
   contests?: Contest[];
 }
 
