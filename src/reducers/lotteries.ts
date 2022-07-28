@@ -7,6 +7,7 @@ import apis from "../constants/apis";
 
 export interface LotteriesState {
   list: Lottery[];
+  loading: boolean;
 }
 
 export const fetchLotteries = createAsyncThunk(
@@ -45,7 +46,15 @@ export const lotteriesSlice = createSlice({
   name: "lotteries",
   initialState: initialState().lotteries,
   reducers: {},
-  extraReducers: (builder) => {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchLotteries.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchLotteries.fulfilled, (state) => {
+        state.loading = false;
+      });
+  },
 });
 
 export default lotteriesSlice.reducer;

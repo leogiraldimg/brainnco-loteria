@@ -1,6 +1,7 @@
 const initialState = () => ({
   lotteries: {
     list: [],
+    loading: false,
   },
 });
 
