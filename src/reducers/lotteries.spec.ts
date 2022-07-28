@@ -21,6 +21,34 @@ describe("Reducers::Lotteries", () => {
 
     expect(reducer(undefined, action)).toEqual(expected);
   });
+
+  it("should handle fetchLotteries.pending", () => {
+    const appState = {
+      list: [],
+      loading: false,
+    };
+    const action = { type: fetchLotteries.pending };
+    const expected = {
+      list: [],
+      loading: true,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchLotteries.fulfilled", () => {
+    const appState = {
+      list: [],
+      loading: true,
+    };
+    const action = { type: fetchLotteries.fulfilled };
+    const expected = {
+      list: [],
+      loading: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
 });
 
 describe("Actions::Lotteries", () => {
