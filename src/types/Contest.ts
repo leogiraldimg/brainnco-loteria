@@ -1,5 +1,6 @@
 export interface Contest {
   id: string;
-  date: Date;
-  results: string[];
+  loteria: number;
+  numeros: string[];
+  data: string;
 }
