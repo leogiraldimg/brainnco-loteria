@@ -1,5 +1,9 @@
 import mockFetch from "cross-fetch";
-import reducer, { fetchContestsByLotteryId, fetchLotteries } from "./lotteries";
+import reducer, {
+  fetchContestsByLotteryId,
+  fetchLotteries,
+  fetchContestDetails,
+} from "./lotteries";
 import initialState from "./initialState";
 
 jest.mock("cross-fetch");
@@ -26,13 +30,19 @@ describe("Actions::Lotteries", () => {
     id: 0,
     nome: "LoteriaA",
   };
-  const contestA = {
+  const lotteryContestA = {
     loteriaId: 0,
     concursoId: "0001",
   };
-  const contestB = {
+  const lotteryContestB = {
     loteriaId: 1,
     concursoId: "0002",
+  };
+  const contestA = {
+    id: "0001",
+    loteria: 0,
+    numeros: ["31", "32", "39", "42", "43", "51"],
+    data: "2022-07-27T13:46:02.349Z",
   };
 
   afterAll(() => {
@@ -90,7 +100,7 @@ describe("Actions::Lotteries", () => {
       Promise.resolve({
         status: 200,
         json() {
-          return Promise.resolve([contestA, contestB]);
+          return Promise.resolve([lotteryContestA, lotteryContestB]);
         },
       })
     );
@@ -102,7 +112,7 @@ describe("Actions::Lotteries", () => {
       expect.objectContaining({
         type: fetchContestsByLotteryId.fulfilled.type,
         meta: expect.objectContaining({ arg: lotteryA.id }),
-        payload: [contestA],
+        payload: [lotteryContestA],
       }),
     ]);
 
@@ -126,6 +136,51 @@ describe("Actions::Lotteries", () => {
     ]);
 
     await fetchContestsByLotteryId(lotteryA.id)(dispatch, () => {}, {});
+
+    expect(dispatch.mock.calls.flat()).toEqual(expected);
+  });
+
+  it("should fetch contest details", async () => {
+    mockedFetch.mockReturnValueOnce(
+      Promise.resolve({
+        status: 200,
+        json() {
+          return Promise.resolve(contestA);
+        },
+      })
+    );
+    const expected = expect.arrayContaining([
+      expect.objectContaining({
+        type: fetchContestDetails.pending.type,
+        meta: expect.objectContaining({ arg: contestA.id }),
+      }),
+      expect.objectContaining({
+        type: fetchContestDetails.fulfilled.type,
+        meta: expect.objectContaining({ arg: contestA.id }),
+        payload: contestA,
+      }),
+    ]);
+
+    await fetchContestDetails(contestA.id)(dispatch, () => {}, {});
+
+    expect(dispatch.mock.calls.flat()).toEqual(expected);
+  });
+
+  it("should fail to fetch contest details", async () => {
+    mockedFetch.mockReturnValueOnce(Promise.reject(new Error("Network Error")));
+    const expected = expect.arrayContaining([
+      expect.objectContaining({
+        type: fetchContestDetails.pending.type,
+        meta: expect.objectContaining({ arg: contestA.id }),
+      }),
+      expect.objectContaining({
+        type: fetchContestDetails.rejected.type,
+        meta: expect.objectContaining({ arg: contestA.id }),
+        error: expect.objectContaining({ message: "Network Error" }),
+      }),
+    ]);
+
+    await fetchContestDetails(contestA.id)(dispatch, () => {}, {});
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
