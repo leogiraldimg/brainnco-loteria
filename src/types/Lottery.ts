@@ -3,6 +3,7 @@ import { Contest } from "./Contest";
 export interface Lottery {
   id: number;
   nome: string;
+  loading: boolean;
   contests?: Contest[];
 }
 

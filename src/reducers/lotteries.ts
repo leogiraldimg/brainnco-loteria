@@ -44,7 +44,7 @@ export const fetchContestDetails = createAsyncThunk(
 
 export const lotteriesSlice = createSlice({
   name: "lotteries",
-  initialState: initialState().lotteries,
+  initialState: initialState().lotteries as LotteriesState,
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -53,6 +53,18 @@ export const lotteriesSlice = createSlice({
       })
       .addCase(fetchLotteries.fulfilled, (state) => {
         state.loading = false;
+      })
+      .addCase(fetchContestsByLotteryId.pending, (state, action) => {
+        const lottery = state.list.find((l) => l.id === action.meta.arg);
+        if (lottery) {
+          lottery.loading = true;
+        }
+      })
+      .addCase(fetchContestsByLotteryId.fulfilled, (state, action) => {
+        const lottery = state.list.find((l) => l.id === action.meta.arg);
+        if (lottery) {
+          lottery.loading = false;
+        }
       });
   },
 });
