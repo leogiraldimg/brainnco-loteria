@@ -14,7 +14,7 @@ export const fetchLotteries = createAsyncThunk(
   "lotteries/fetchLotteries",
   async () => {
     const response = await fetch(`${apis.brainn_lottery}/loterias`);
-    const data: { data: Lottery[] } = await response.json();
+    const data: Lottery[] = await response.json();
     return data;
   }
 );
@@ -51,8 +51,9 @@ export const lotteriesSlice = createSlice({
       .addCase(fetchLotteries.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchLotteries.fulfilled, (state) => {
+      .addCase(fetchLotteries.fulfilled, (state, action) => {
         state.loading = false;
+        state.list = action.payload;
       })
       .addCase(fetchContestsByLotteryId.pending, (state, action) => {
         const lottery = state.list.find((l) => l.id === action.meta.arg);
@@ -64,6 +65,10 @@ export const lotteriesSlice = createSlice({
         const lottery = state.list.find((l) => l.id === action.meta.arg);
         if (lottery) {
           lottery.loading = false;
+          lottery.contests = {
+            list: action.payload.map((lc) => ({ id: lc.concursoId })),
+            loading: false,
+          };
         }
       });
   },
