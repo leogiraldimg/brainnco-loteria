@@ -5,10 +5,21 @@ import reducer, {
   fetchContestDetails,
 } from "./lotteries";
 import initialState from "./initialState";
+import { Lottery } from "../types/Lottery";
 
 jest.mock("cross-fetch");
 
 const mockedFetch: jest.Mock<unknown> = mockFetch as any;
+
+const lotteryA = {
+  id: 0,
+  nome: "LoteriaA",
+  loading: false,
+};
+const lotteryContestA = {
+  loteriaId: 0,
+  concursoId: "0001",
+};
 
 describe("Reducers::Lotteries", () => {
   const getInitialState = () => {
@@ -41,9 +52,53 @@ describe("Reducers::Lotteries", () => {
       list: [],
       loading: true,
     };
-    const action = { type: fetchLotteries.fulfilled };
+    const action = { type: fetchLotteries.fulfilled, payload: [lotteryA] };
     const expected = {
       list: [],
+      loading: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestsByLotteryId.pending", () => {
+    const appState = {
+      list: [lotteryA],
+      loading: false,
+    };
+    const action = {
+      type: fetchContestsByLotteryId.pending,
+      meta: { arg: lotteryA.id },
+    };
+    const expected = {
+      list: [
+        {
+          ...lotteryA,
+          loading: true,
+        },
+      ],
+      loading: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestsByLotteryId.fulfilled", () => {
+    const appState = {
+      list: [{ ...lotteryA, loading: true }],
+      loading: false,
+    };
+    const action = {
+      type: fetchContestsByLotteryId.fulfilled,
+      meta: { arg: lotteryA.id },
+    };
+    const expected = {
+      list: [
+        {
+          ...lotteryA,
+          loading: false,
+        },
+      ],
       loading: false,
     };
 
@@ -54,14 +109,6 @@ describe("Reducers::Lotteries", () => {
 describe("Actions::Lotteries", () => {
   const dispatch = jest.fn();
 
-  const lotteryA = {
-    id: 0,
-    nome: "LoteriaA",
-  };
-  const lotteryContestA = {
-    loteriaId: 0,
-    concursoId: "0001",
-  };
   const lotteryContestB = {
     loteriaId: 1,
     concursoId: "0002",
