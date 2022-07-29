@@ -20,6 +20,12 @@ const lotteryContestA = {
   loteriaId: 0,
   concursoId: "0001",
 };
+const contestA = {
+  id: "0001",
+  loteria: 0,
+  numeros: ["31", "32", "39", "42", "43", "51"],
+  data: "2022-07-27T13:46:02.349Z",
+};
 
 describe("Reducers::Lotteries", () => {
   const getInitialState = () => {
@@ -54,7 +60,7 @@ describe("Reducers::Lotteries", () => {
     };
     const action = { type: fetchLotteries.fulfilled, payload: [lotteryA] };
     const expected = {
-      list: [],
+      list: [lotteryA],
       loading: false,
     };
 
@@ -91,12 +97,17 @@ describe("Reducers::Lotteries", () => {
     const action = {
       type: fetchContestsByLotteryId.fulfilled,
       meta: { arg: lotteryA.id },
+      payload: [lotteryContestA],
     };
     const expected = {
       list: [
         {
           ...lotteryA,
           loading: false,
+          contests: {
+            list: [{ id: lotteryContestA.concursoId }],
+            loading: false,
+          },
         },
       ],
       loading: false,
@@ -112,12 +123,6 @@ describe("Actions::Lotteries", () => {
   const lotteryContestB = {
     loteriaId: 1,
     concursoId: "0002",
-  };
-  const contestA = {
-    id: "0001",
-    loteria: 0,
-    numeros: ["31", "32", "39", "42", "43", "51"],
-    data: "2022-07-27T13:46:02.349Z",
   };
 
   afterAll(() => {
