@@ -33,11 +33,12 @@ export const fetchContestsByLotteryId = createAsyncThunk(
 
 export const fetchContestDetails = createAsyncThunk(
   "lotteries/fetchContestDetails",
-  async (contestId: string) => {
-    const response = await fetch(
-      `${apis.brainn_lottery}/concursos/${contestId}`
-    );
-    const data: Contest = await response.json();
+  async (contestsIds: string[]) => {
+    const data: Contest[] = [];
+    for (const id of contestsIds) {
+      const response = await fetch(`${apis.brainn_lottery}/concursos/${id}`);
+      data.push(await response.json());
+    }
     return data;
   }
 );
