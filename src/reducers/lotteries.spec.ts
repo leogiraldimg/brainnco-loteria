@@ -23,6 +23,14 @@ const lotteryContestA = {
 const contestA = {
   id: "0001",
   loteria: 0,
+  loading: false,
+  numeros: ["31", "32", "39", "42", "43", "51"],
+  data: "2022-07-27T13:46:02.349Z",
+};
+const contestB = {
+  id: "0002",
+  loteria: 0,
+  loading: false,
   numeros: ["31", "32", "39", "42", "43", "51"],
   data: "2022-07-27T13:46:02.349Z",
 };
@@ -220,47 +228,68 @@ describe("Actions::Lotteries", () => {
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
 
-  it("should fetch contest details", async () => {
-    mockedFetch.mockReturnValueOnce(
-      Promise.resolve({
-        status: 200,
-        json() {
-          return Promise.resolve(contestA);
-        },
-      })
-    );
+  it("should fetch contests details", async () => {
+    mockedFetch
+      .mockReturnValueOnce(
+        Promise.resolve({
+          status: 200,
+          json() {
+            return Promise.resolve(contestA);
+          },
+        })
+      )
+      .mockReturnValueOnce(
+        Promise.resolve({
+          status: 200,
+          json() {
+            return Promise.resolve(contestB);
+          },
+        })
+      );
     const expected = expect.arrayContaining([
       expect.objectContaining({
         type: fetchContestDetails.pending.type,
-        meta: expect.objectContaining({ arg: contestA.id }),
+        meta: expect.objectContaining({
+          arg: [contestA.id, contestB.id],
+        }),
       }),
       expect.objectContaining({
         type: fetchContestDetails.fulfilled.type,
-        meta: expect.objectContaining({ arg: contestA.id }),
-        payload: contestA,
+        meta: expect.objectContaining({
+          arg: [contestA.id, contestB.id],
+        }),
+        payload: [contestA, contestB],
       }),
     ]);
 
-    await fetchContestDetails(contestA.id)(dispatch, () => {}, {});
+    await fetchContestDetails([contestA.id, contestB.id])(
+      dispatch,
+      () => {},
+      {}
+    );
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
 
-  it("should fail to fetch contest details", async () => {
+  it("should fail to fetch contests details", async () => {
     mockedFetch.mockReturnValueOnce(Promise.reject(new Error("Network Error")));
     const expected = expect.arrayContaining([
       expect.objectContaining({
         type: fetchContestDetails.pending.type,
-        meta: expect.objectContaining({ arg: contestA.id }),
+        meta: expect.objectContaining({ arg: [contestA.id, contestB.id] }),
       }),
       expect.objectContaining({
         type: fetchContestDetails.rejected.type,
-        meta: expect.objectContaining({ arg: contestA.id }),
+        meta: expect.objectContaining({ arg: [contestA.id, contestB.id] }),
         error: expect.objectContaining({ message: "Network Error" }),
       }),
     ]);
 
-    await fetchContestDetails(contestA.id)(dispatch, () => {}, {});
+    await fetchContestDetails([contestA.id, contestB.id])(
+      dispatch,
+      () => {},
+      {}
+    );
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
