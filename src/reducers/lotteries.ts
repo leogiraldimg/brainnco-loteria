@@ -74,6 +74,28 @@ export const lotteriesSlice = createSlice({
             loading: false,
           };
         }
+      })
+      .addCase(fetchContestDetails.pending, (state, action) => {
+        const lottery = state.list.find((l) => l.id === action.meta.arg.id);
+        if (lottery && lottery.contests && lottery.contests.list.length > 0) {
+          lottery.contests.list.forEach((c) => {
+            c.loading = true;
+          });
+        }
+      })
+      .addCase(fetchContestDetails.fulfilled, (state, action) => {
+        const lottery = state.list.find((l) => l.id === action.meta.arg.id);
+        if (lottery && lottery.contests && lottery.contests.list.length > 0) {
+          lottery.contests.list.forEach((c) => {
+            const contest = action.payload.find((ct) => c.id === ct.id);
+            if (contest) {
+              c.data = contest.data;
+              c.loading = false;
+              c.loteria = contest.loteria;
+              c.numeros = contest.numeros;
+            }
+          });
+        }
       });
   },
 });
