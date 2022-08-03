@@ -5,7 +5,6 @@ import reducer, {
   fetchContestDetails,
 } from "./lotteries";
 import initialState from "./initialState";
-import { Lottery } from "../types/Lottery";
 
 jest.mock("cross-fetch");
 
@@ -33,6 +32,16 @@ const contestB = {
   loading: false,
   numeros: ["31", "32", "39", "42", "43", "51"],
   data: "2022-07-27T13:46:02.349Z",
+};
+const completeLotteryA = {
+  ...lotteryA,
+  contests: {
+    list: [
+      { id: contestA.id, loading: false },
+      { id: contestB.id, loading: false },
+    ],
+    loading: false,
+  },
 };
 
 describe("Reducers::Lotteries", () => {
@@ -250,23 +259,19 @@ describe("Actions::Lotteries", () => {
       expect.objectContaining({
         type: fetchContestDetails.pending.type,
         meta: expect.objectContaining({
-          arg: [contestA.id, contestB.id],
+          arg: completeLotteryA,
         }),
       }),
       expect.objectContaining({
         type: fetchContestDetails.fulfilled.type,
         meta: expect.objectContaining({
-          arg: [contestA.id, contestB.id],
+          arg: completeLotteryA,
         }),
         payload: [contestA, contestB],
       }),
     ]);
 
-    await fetchContestDetails([contestA.id, contestB.id])(
-      dispatch,
-      () => {},
-      {}
-    );
+    await fetchContestDetails(completeLotteryA)(dispatch, () => {}, {});
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
@@ -276,20 +281,16 @@ describe("Actions::Lotteries", () => {
     const expected = expect.arrayContaining([
       expect.objectContaining({
         type: fetchContestDetails.pending.type,
-        meta: expect.objectContaining({ arg: [contestA.id, contestB.id] }),
+        meta: expect.objectContaining({ arg: completeLotteryA }),
       }),
       expect.objectContaining({
         type: fetchContestDetails.rejected.type,
-        meta: expect.objectContaining({ arg: [contestA.id, contestB.id] }),
+        meta: expect.objectContaining({ arg: completeLotteryA }),
         error: expect.objectContaining({ message: "Network Error" }),
       }),
     ]);
 
-    await fetchContestDetails([contestA.id, contestB.id])(
-      dispatch,
-      () => {},
-      {}
-    );
+    await fetchContestDetails(completeLotteryA)(dispatch, () => {}, {});
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
