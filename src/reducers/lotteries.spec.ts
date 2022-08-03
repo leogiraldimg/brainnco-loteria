@@ -132,6 +132,60 @@ describe("Reducers::Lotteries", () => {
 
     expect(reducer(appState, action)).toEqual(expected);
   });
+
+  it("should handle fetchContestDetails.pending", () => {
+    const appState = {
+      list: [completeLotteryA],
+      loading: false,
+    };
+    const action = {
+      type: fetchContestDetails.pending,
+      meta: { arg: completeLotteryA },
+    };
+    const expected = {
+      list: [
+        {
+          ...lotteryA,
+          contests: {
+            list: [
+              { ...completeLotteryA.contests.list[0], loading: true },
+              { ...completeLotteryA.contests.list[1], loading: true },
+            ],
+            loading: false,
+          },
+        },
+      ],
+      loading: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestDetails.fulfilled", () => {
+    const appState = {
+      list: [completeLotteryA],
+      loading: false,
+    };
+    const action = {
+      type: fetchContestDetails.fulfilled,
+      meta: { arg: completeLotteryA },
+      payload: [contestA, contestB],
+    };
+    const expected = {
+      list: [
+        {
+          ...lotteryA,
+          contests: {
+            list: [contestA, contestB],
+            loading: false,
+          },
+        },
+      ],
+      loading: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
 });
 
 describe("Actions::Lotteries", () => {
