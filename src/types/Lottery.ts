@@ -4,6 +4,7 @@ export interface Lottery {
   id: number;
   nome: string;
   loading: boolean;
+  error: boolean;
   contests?: {
     list: Contest[];
     loading: boolean;

@@ -8,6 +8,7 @@ import apis from "../constants/apis";
 export interface LotteriesState {
   list: Lottery[];
   loading: boolean;
+  error: boolean;
 }
 
 export const fetchLotteries = createAsyncThunk(
@@ -59,6 +60,10 @@ export const lotteriesSlice = createSlice({
         state.loading = false;
         state.list = action.payload;
       })
+      .addCase(fetchLotteries.rejected, (state) => {
+        state.loading = false;
+        state.error = true;
+      })
       .addCase(fetchContestsByLotteryId.pending, (state, action) => {
         const lottery = state.list.find((l) => l.id === action.meta.arg);
         if (lottery) {
@@ -73,6 +78,13 @@ export const lotteriesSlice = createSlice({
             list: action.payload.map((lc) => ({ id: lc.concursoId })),
             loading: false,
           };
+        }
+      })
+      .addCase(fetchContestsByLotteryId.rejected, (state, action) => {
+        const lottery = state.list.find((l) => l.id === action.meta.arg);
+        if (lottery) {
+          lottery.loading = false;
+          lottery.error = true;
         }
       })
       .addCase(fetchContestDetails.pending, (state, action) => {
@@ -94,6 +106,15 @@ export const lotteriesSlice = createSlice({
               c.loteria = contest.loteria;
               c.numeros = contest.numeros;
             }
+          });
+        }
+      })
+      .addCase(fetchContestDetails.rejected, (state, action) => {
+        const lottery = state.list.find((l) => l.id === action.meta.arg.id);
+        if (lottery && lottery.contests && lottery.contests.list.length > 0) {
+          lottery.contests.list.forEach((c) => {
+            c.loading = false;
+            c.error = true;
           });
         }
       });
