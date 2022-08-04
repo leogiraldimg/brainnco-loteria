@@ -14,6 +14,7 @@ const lotteryA = {
   id: 0,
   nome: "LoteriaA",
   loading: false,
+  error: false,
 };
 const lotteryContestA = {
   loteriaId: 0,
@@ -23,6 +24,7 @@ const contestA = {
   id: "0001",
   loteria: 0,
   loading: false,
+  error: false,
   numeros: ["31", "32", "39", "42", "43", "51"],
   data: "2022-07-27T13:46:02.349Z",
 };
@@ -30,6 +32,7 @@ const contestB = {
   id: "0002",
   loteria: 0,
   loading: false,
+  error: false,
   numeros: ["31", "32", "39", "42", "43", "51"],
   data: "2022-07-27T13:46:02.349Z",
 };
@@ -37,8 +40,8 @@ const completeLotteryA = {
   ...lotteryA,
   contests: {
     list: [
-      { id: contestA.id, loading: false },
-      { id: contestB.id, loading: false },
+      { id: contestA.id, loading: false, error: false },
+      { id: contestB.id, loading: false, error: false },
     ],
     loading: false,
   },
@@ -60,11 +63,13 @@ describe("Reducers::Lotteries", () => {
     const appState = {
       list: [],
       loading: false,
+      error: false,
     };
     const action = { type: fetchLotteries.pending };
     const expected = {
       list: [],
       loading: true,
+      error: false,
     };
 
     expect(reducer(appState, action)).toEqual(expected);
@@ -74,11 +79,29 @@ describe("Reducers::Lotteries", () => {
     const appState = {
       list: [],
       loading: true,
+      error: false,
     };
     const action = { type: fetchLotteries.fulfilled, payload: [lotteryA] };
     const expected = {
       list: [lotteryA],
       loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchLotteries.rejected", () => {
+    const appState = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+    const action = { type: fetchLotteries.rejected };
+    const expected = {
+      list: [],
+      loading: false,
+      error: true,
     };
 
     expect(reducer(appState, action)).toEqual(expected);
@@ -88,6 +111,7 @@ describe("Reducers::Lotteries", () => {
     const appState = {
       list: [lotteryA],
       loading: false,
+      error: false,
     };
     const action = {
       type: fetchContestsByLotteryId.pending,
@@ -101,6 +125,7 @@ describe("Reducers::Lotteries", () => {
         },
       ],
       loading: false,
+      error: false,
     };
 
     expect(reducer(appState, action)).toEqual(expected);
@@ -110,6 +135,7 @@ describe("Reducers::Lotteries", () => {
     const appState = {
       list: [{ ...lotteryA, loading: true }],
       loading: false,
+      error: false,
     };
     const action = {
       type: fetchContestsByLotteryId.fulfilled,
@@ -128,6 +154,31 @@ describe("Reducers::Lotteries", () => {
         },
       ],
       loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestsByLotteryId.rejected", () => {
+    const appState = {
+      list: [lotteryA],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestsByLotteryId.rejected,
+      meta: { arg: lotteryA.id },
+    };
+    const expected = {
+      list: [
+        {
+          ...lotteryA,
+          error: true,
+        },
+      ],
+      loading: false,
+      error: false,
     };
 
     expect(reducer(appState, action)).toEqual(expected);
@@ -137,6 +188,7 @@ describe("Reducers::Lotteries", () => {
     const appState = {
       list: [completeLotteryA],
       loading: false,
+      error: false,
     };
     const action = {
       type: fetchContestDetails.pending,
@@ -156,6 +208,7 @@ describe("Reducers::Lotteries", () => {
         },
       ],
       loading: false,
+      error: false,
     };
 
     expect(reducer(appState, action)).toEqual(expected);
@@ -165,6 +218,7 @@ describe("Reducers::Lotteries", () => {
     const appState = {
       list: [completeLotteryA],
       loading: false,
+      error: false,
     };
     const action = {
       type: fetchContestDetails.fulfilled,
@@ -182,6 +236,37 @@ describe("Reducers::Lotteries", () => {
         },
       ],
       loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestDetails.rejected", () => {
+    const appState = {
+      list: [completeLotteryA],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestDetails.rejected,
+      meta: { arg: completeLotteryA },
+    };
+    const expected = {
+      list: [
+        {
+          ...lotteryA,
+          contests: {
+            list: [
+              { id: contestA.id, loading: false, error: true },
+              { id: contestB.id, loading: false, error: true },
+            ],
+            loading: false,
+          },
+        },
+      ],
+      loading: false,
+      error: false,
     };
 
     expect(reducer(appState, action)).toEqual(expected);
