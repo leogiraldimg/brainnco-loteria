@@ -131,6 +131,25 @@ describe("Reducers::Lotteries", () => {
     expect(reducer(appState, action)).toEqual(expected);
   });
 
+  it("should handle fetchContestsByLotteryId.pending when lottery not found", () => {
+    const appState = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestsByLotteryId.pending,
+      meta: { arg: lotteryA.id },
+    };
+    const expected = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
   it("should handle fetchContestsByLotteryId.fulfilled", () => {
     const appState = {
       list: [{ ...lotteryA, loading: true }],
@@ -160,6 +179,26 @@ describe("Reducers::Lotteries", () => {
     expect(reducer(appState, action)).toEqual(expected);
   });
 
+  it("should handle fetchContestsByLotteryId.fulfilled when lottery not found", () => {
+    const appState = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestsByLotteryId.fulfilled,
+      meta: { arg: lotteryA.id },
+      payload: [lotteryContestA],
+    };
+    const expected = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
   it("should handle fetchContestsByLotteryId.rejected", () => {
     const appState = {
       list: [lotteryA],
@@ -177,6 +216,25 @@ describe("Reducers::Lotteries", () => {
           error: true,
         },
       ],
+      loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestsByLotteryId.rejected when lottery not found", () => {
+    const appState = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestsByLotteryId.rejected,
+      meta: { arg: lotteryA.id },
+    };
+    const expected = {
+      list: [],
       loading: false,
       error: false,
     };
@@ -214,6 +272,25 @@ describe("Reducers::Lotteries", () => {
     expect(reducer(appState, action)).toEqual(expected);
   });
 
+  it("should handle fetchContestDetails.pending when lottery not found", () => {
+    const appState = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestDetails.pending,
+      meta: { arg: completeLotteryA },
+    };
+    const expected = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
   it("should handle fetchContestDetails.fulfilled", () => {
     const appState = {
       list: [completeLotteryA],
@@ -231,6 +308,54 @@ describe("Reducers::Lotteries", () => {
           ...lotteryA,
           contests: {
             list: [contestA, contestB],
+            loading: false,
+          },
+        },
+      ],
+      loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestDetails.fulfilled when lottery not found", () => {
+    const appState = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestDetails.fulfilled,
+      meta: { arg: completeLotteryA },
+      payload: [contestA, contestB],
+    };
+    const expected = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestDetails.fulfilled when contest not found", () => {
+    const appState = {
+      list: [completeLotteryA],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestDetails.fulfilled,
+      meta: { arg: completeLotteryA },
+      payload: [],
+    };
+    const expected = {
+      list: [
+        {
+          ...lotteryA,
+          contests: {
+            list: completeLotteryA.contests.list,
             loading: false,
           },
         },
@@ -265,6 +390,25 @@ describe("Reducers::Lotteries", () => {
           },
         },
       ],
+      loading: false,
+      error: false,
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it("should handle fetchContestDetails.rejected when lottery not found", () => {
+    const appState = {
+      list: [],
+      loading: false,
+      error: false,
+    };
+    const action = {
+      type: fetchContestDetails.rejected,
+      meta: { arg: completeLotteryA },
+    };
+    const expected = {
+      list: [],
       loading: false,
       error: false,
     };
@@ -430,6 +574,32 @@ describe("Actions::Lotteries", () => {
     ]);
 
     await fetchContestDetails(completeLotteryA)(dispatch, () => {}, {});
+
+    expect(dispatch.mock.calls.flat()).toEqual(expected);
+  });
+
+  it("should return empty array when no contests", async () => {
+    const lottery = {
+      ...completeLotteryA,
+      contests: { list: [], loading: false },
+    };
+    let expected = expect.arrayContaining([
+      expect.objectContaining({
+        type: fetchContestDetails.pending.type,
+        meta: expect.objectContaining({
+          arg: lottery,
+        }),
+      }),
+      expect.objectContaining({
+        type: fetchContestDetails.fulfilled.type,
+        meta: expect.objectContaining({
+          arg: lottery,
+        }),
+        payload: [],
+      }),
+    ]);
+
+    await fetchContestDetails(lottery)(dispatch, () => {}, {});
 
     expect(dispatch.mock.calls.flat()).toEqual(expected);
   });
