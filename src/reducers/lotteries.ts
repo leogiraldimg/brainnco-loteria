@@ -4,6 +4,7 @@ import { Lottery, LotteryContests } from "../types/Lottery";
 import { Contest } from "../types/Contest";
 import fetch from "cross-fetch";
 import apis from "../constants/apis";
+import { RootState } from "../store/configureStore";
 
 export interface LotteriesState {
   list: Lottery[];
@@ -121,4 +122,5 @@ export const lotteriesSlice = createSlice({
   },
 });
 
+export const selectLotteries = (state: RootState) => state.lotteries.list;
 export default lotteriesSlice.reducer;

@@ -1,8 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
+import lotteriesReducer from "../reducers/lotteries";
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    lotteries: lotteriesReducer,
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
