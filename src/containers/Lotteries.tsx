@@ -1,7 +1,11 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import LotterySelector from "../components/LotterySelector";
-import { fetchLotteries, selectLotteries } from "../reducers/lotteries";
+import {
+  fetchContestsByLotteryId,
+  fetchLotteries,
+  selectLotteries,
+} from "../reducers/lotteries";
 import { useAppSelector } from "../store/configureStore";
 
 export const Lotteries: React.FC = () => {
@@ -13,7 +17,18 @@ export const Lotteries: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <LotterySelector lotteries={lotteries} />;
+  function toggleLotterySelected(event: React.ChangeEvent<HTMLSelectElement>) {
+    const lotteryId = event.target.value;
+
+    dispatch(fetchContestsByLotteryId(parseInt(lotteryId)));
+  }
+
+  return (
+    <LotterySelector
+      lotteries={lotteries}
+      toggleLotterySelected={toggleLotterySelected}
+    />
+  );
 };
 
 export default Lotteries;
