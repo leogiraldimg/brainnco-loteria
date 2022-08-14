@@ -15,9 +15,15 @@ describe("<LotterySelector />", () => {
     loading: false,
     error: false,
   };
+  const toggleLotterySelectedMock = jest.fn();
 
   it("should render the lotteries options", () => {
-    const wrapper = mount(<LotterySelector lotteries={[lotteryA, lotteryB]} />);
+    const wrapper = mount(
+      <LotterySelector
+        lotteries={[lotteryA, lotteryB]}
+        toggleLotterySelected={toggleLotterySelectedMock}
+      />
+    );
 
     expect(wrapper.find("option").length).toBe(2);
   });

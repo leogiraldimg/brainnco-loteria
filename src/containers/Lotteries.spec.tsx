@@ -5,16 +5,27 @@ import configureMockStore from "redux-mock-store";
 import { mount } from "enzyme";
 import { Provider } from "react-redux";
 import ConnectedLotteries from "../containers/Lotteries";
-import { fetchLotteries } from "../reducers/lotteries";
+import {
+  fetchContestsByLotteryId,
+  fetchLotteries,
+} from "../reducers/lotteries";
 import LotterySelector from "../components/LotterySelector";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 describe("<Lotteries />", () => {
   let store: MockStoreEnhanced<unknown, {}>;
 
-  function setup(): JSX.Element {
+  const lotteryA = {
+    id: 0,
+    nome: "LoteriaA",
+    loading: false,
+    error: false,
+  };
+
+  function setup(storeProps?: object): JSX.Element {
     const middlewares = [thunk];
     store = configureMockStore(middlewares)({
-      lotteries: { list: [], loading: false, error: false },
+      lotteries: { list: [], loading: false, error: false, ...storeProps },
     });
     return (
       <Provider store={store}>
@@ -43,5 +54,21 @@ describe("<Lotteries />", () => {
     const wrapper = mount(setup());
 
     expect(wrapper.find(LotterySelector).length).toBe(1);
+  });
+
+  it("should fetch contests when lottery is selected", () => {
+    render(setup({ list: [lotteryA] }));
+    const select = screen.getByTestId("lottery-selector") as HTMLSelectElement;
+
+    fireEvent.change(select, { target: { value: "0" } });
+
+    expect(store.getActions()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          meta: expect.objectContaining({ arg: lotteryA.id }),
+          type: fetchContestsByLotteryId.pending.type,
+        }),
+      ])
+    );
   });
 });
